@@ -1,13 +1,23 @@
 const canvas = document.getElementById("jsCanvas");
 const context = canvas.getContext("2d");
+const colors = document.getElementsByClassName("jsColor");
+const range = document.getElementById("jsRange");
+const mode = document.getElementById("jsMode");
 
-canvas.width = 700;
-canvas.height = 700;
-
-context.strokeStyle = "#2c2c2";
-context.lineWidth = 2.5;
+const INITIAL_COLOR = "";
+const CANVAS_SIZE = 700;
 
 let painting = false;
+let filling = false;
+
+canvas.width = CANVAS_SIZE;
+canvas.height = CANVAS_SIZE;
+
+context.strokeStyle = INITIAL_COLOR;
+context.lineWidth = 2.5;
+
+context.fillStyle = INITIAL_COLOR;
+// context.fillRect(50, 20, 100, 49);
 
 function paintingStop() {
   painting = false;
@@ -27,22 +37,55 @@ function onMouseMove(event) {
   } else {
     context.lineTo(x, y);
     context.stroke();
-    context.closePath();
   }
 }
 
-function onMouseDown(evnet) {
-  painting = true;
+function handleColorClick(event) {
+  const color = event.target.style.backgroundColor;
+  context.strokeStyle = color;
+  context.fillStyle = color;
 }
 
-function onMouseUp(event) {}
+function handleRangeChgange(event) {
+  const strokeSize = event.target.value;
+  context.lineWidth = strokeSize;
+}
+
+function handleMode() {
+  if (filling === true) {
+    filling = false;
+    mode.innerText = "Fill";
+  } else {
+    filling = true;
+    mode.innerText = "Paint";
+  }
+}
+
+function handleCanvasClick() {
+  if (filling) {
+    context.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  }
+}
 
 function init() {
   if (canvas) {
-    canvas.addEventListener("mousedown", onMouseDown);
     canvas.addEventListener("mousemove", onMouseMove);
+    canvas.addEventListener("mousedown", startPainting);
     canvas.addEventListener("mouseup", paintingStop);
     canvas.addEventListener("mouseleave", paintingStop);
+    canvas.addEventListener("click", handleCanvasClick);
+  }
+
+  Array.from(colors).forEach(color =>
+    color.addEventListener("click", handleColorClick)
+  );
+
+  if (range) {
+    range.addEventListener("input", handleRangeChgange);
+  }
+
+  if (mode) {
+    mode.addEventListener("click", handleMode);
   }
 }
 
